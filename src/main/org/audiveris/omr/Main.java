@@ -447,7 +447,7 @@ public class Main
 
         private final Constant.Integer sheetStepTimeOut = new Constant.Integer(
                 "Seconds",
-                120,
+                300,
                 "Time-out for one step on a sheet, specified in seconds");
     }
 }
