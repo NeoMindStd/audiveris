@@ -1033,22 +1033,24 @@ public class SheetStub
             }
 
             ok = true;
-        } catch (ProcessingCancellationException pce) {
-            throw pce;
-        } catch (StepException ignored) {
-            logger.info("StepException detected in " + neededSteps);
-        } catch (ExecutionException ex) {
-            // A StepException may have been wrapped into an ExecutionException
-            if (ex.getCause() instanceof StepPause) {
-                logger.info("Processing stopped. Cause: {}", ex.getCause().getMessage());
-                ok = false;
-            } else if (ex.getCause() instanceof StepException) {
-                logger.info("StepException cause detected in " + neededSteps);
-            } else {
-                logger.warn("Error in performing {} {}", neededSteps, ex.toString(), ex);
-            }
-        } catch (Exception ex) {
-            logger.warn("Error in performing {} {}", neededSteps, ex.toString(), ex);
+//        } catch (ProcessingCancellationException pce) {
+//            throw pce;
+//        } catch (StepException ignored) {
+//            logger.info("StepException detected in " + neededSteps);
+//        } catch (ExecutionException ex) {
+//            // A StepException may have been wrapped into an ExecutionException
+//            if (ex.getCause() instanceof StepPause) {
+//                logger.info("Processing stopped. Cause: {}", ex.getCause().getMessage());
+//                ok = false;
+//            } else if (ex.getCause() instanceof StepException) {
+//                logger.info("StepException cause detected in " + neededSteps);
+//            } else {
+//                logger.warn("Error in performing {} {}", neededSteps, ex.toString(), ex);
+//            }
+//        } catch (Exception ex) {
+//            logger.warn("Error in performing {} {}", neededSteps, ex.toString(), ex);
+        } catch (Exception e) {
+            // no op
         } finally {
             StepMonitoring.notifyStop();
 
@@ -1334,7 +1336,7 @@ public class SheetStub
                     } catch (StepPause sp) {
                         done(step);
                         StepMonitoring.notifyStep(SheetStub.this, step);
-                        throw sp;
+//                        throw sp;
                     }
                 } finally {
                     LogUtil.stopStub();
@@ -1343,22 +1345,28 @@ public class SheetStub
                 return null;
             });
 
-            future.get(timeout, TimeUnit.SECONDS);
-
-            // At end of each step, save sheet to disk?
-            if ((OMR.gui == null) && Main.getCli().isSave()) {
-                logger.debug("calling storeSheet");
-                storeSheet();
+            try {
+                future.get(timeout, TimeUnit.SECONDS);
+            } catch (Exception e) {
+                // no op
+            } finally {
+                // At end of each step, save sheet to disk?
+                if ((OMR.gui == null) && Main.getCli().isSave()) {
+                    logger.debug("calling storeSheet");
+                    storeSheet();
+                }
             }
-        } catch (TimeoutException tex) {
-            logger.warn("Timeout {} seconds for step {}", timeout, step, tex);
-
-            // Signal the on-going step processing to stop (if possible)
-            if (future != null) {
-                future.cancel(true);
-            }
-
-            throw new ProcessingCancellationException(tex);
+//        } catch (TimeoutException tex) {
+//            logger.warn("Timeout {} seconds for step {}", timeout, step, tex);
+//
+//            // Signal the on-going step processing to stop (if possible)
+//            if (future != null) {
+//                future.cancel(true);
+//            }
+//
+//            throw new ProcessingCancellationException(tex);
+        } catch (Exception e) {
+            // no op
         } finally {
             setCurrentStep(null);
             StepMonitoring.notifyStep(this, step); // Stop monitoring
