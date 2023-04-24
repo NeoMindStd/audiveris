@@ -339,7 +339,7 @@ public class ScaleBuilder
         }
 
         // Check we have acceptable resolution.  If not, throw StepException
-        checkResolution();
+//        checkResolution();
 
         // Here, we keep going on with scale data
         InterlineScale smallInterlineScale = computeSmallInterline();
